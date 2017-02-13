@@ -5,6 +5,9 @@ from distutils.command.build import build
 from distutils.spawn import spawn
 import os, os.path
 
+# define it if you want
+LIBHTP_HOME = "/Users/stefano/Repositories/libhtp/"
+
 pathjoin = os.path.join
 
 GITVER   = '0.5.21'
@@ -28,6 +31,10 @@ class htpyMaker(build):
         EXTRA_OBJECTS.append('-liconv')
 
     def buildHtp(self):
+        # use local installation
+        if LIBHTP_HOME:
+            return None
+
         # extremely crude package builder
         try:
             os.stat(self.libhtp)
@@ -46,8 +53,12 @@ class htpyMaker(build):
         self.buildHtp()
         build.run(self)
 
-INCLUDE_DIRS = htpyMaker.include_dirs + INCLUDE_DIRS
-EXTRA_OBJECTS = htpyMaker.extra_objects + EXTRA_OBJECTS
+if LIBHTP_HOME:
+    INCLUDE_DIRS.append(os.path.join(LIBHTP_HOME, 'htp'))
+    EXTRA_OBJECTS.append(os.path.join(LIBHTP_HOME, 'htp/.libs/libhtp.a'))
+else:
+    INCLUDE_DIRS = htpyMaker.include_dirs + INCLUDE_DIRS
+    EXTRA_OBJECTS = htpyMaker.extra_objects + EXTRA_OBJECTS
 
 setup (# Distribution meta-data
         name = "htpy",
